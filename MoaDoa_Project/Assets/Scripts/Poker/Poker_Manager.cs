@@ -33,6 +33,7 @@ public class Poker_Manager : MonoBehaviour
     }
 
     // 중복 없이 카드 할당 함수.
+    // 카드는 A ~ F = 1 ~ 6의 범위를 갖는다.
     void deal_Hand()
     {        
         bool[] visited = new bool[30];
@@ -45,7 +46,7 @@ public class Poker_Manager : MonoBehaviour
                 continue;
 
             visited[temp] = true;
-            dealer_Hand.Add(temp % 6);
+            dealer_Hand.Add(temp % 6 + 1);
             cnt++;
         }
 
@@ -57,25 +58,24 @@ public class Poker_Manager : MonoBehaviour
                 continue;
 
             visited[temp] = true;
-            player_Hand.Add(temp % 6);
+            player_Hand.Add(temp % 6 + 1);
             cnt++;
         }
     }
 
 
-    //  족보 + 탑카드 값을 통해 족보의 세기를 리턴.
-    public int calc_PokerRank(List<int> hand)
-    {        
-        int[] card_Cnt = new int[6] { 0, 0, 0, 0, 0, 0 };
+    // List 제일 앞에는 족보, 뒤에는 족보를 이루고 있는 숫자들.
+    public List<int> calc_PokerRank(List<int> hand)
+    {
+        int[] card_Cnt = new int[7] { 0, 0, 0, 0, 0, 0, 0 };
         
-        // 족보 체크용 변수.
+        // 풀하우스, 투 페어 체크용 변수.
         int pair = 0;
-        bool three = false;
-        bool four = false;
-        bool five = false;
+        bool three = false;        
         
-        int topCard = -1;
-        int result = 0;
+        // 동일 족보, 동일 카드의 경우 하위 족보의 카드로 계산.
+        int topCard = -1;        
+        List<int> result = new List<int>();
         // 각 카드의 개수 +;
         foreach (int num in hand)
         {
@@ -84,15 +84,9 @@ public class Poker_Manager : MonoBehaviour
 
         // A ~ F까지 순회하면서 각 카드의 개수 체크.        
         // 탑 카드 확정.
-        for (int i = 0; i < 6; i++)
-        {
-            if (card_Cnt[i] == 1)
-            {
-                // 페어 혹은 트리플이 없을 경우에만 탑 카드 갱신.
-                if (pair == 0 && three != true)
-                    topCard = i;
-            }
-            else if (card_Cnt[i] == 2)
+        for (int i = 1; i <= 6; i++)
+        {            
+            if (card_Cnt[i] == 2)
             {
                 pair++;
                 // 트리플이 없을 때만 탑 카드 갱신
@@ -104,54 +98,106 @@ public class Poker_Manager : MonoBehaviour
                 three = true;
                 topCard = i;                
             }
+            // 포카드, 올은 여기서 확정.
             else if (card_Cnt[i] == 4)
             {
-                four = true;
-                topCard = i;
+                result.Add((int)Ranks.FourCard);
+                result.Add(i);
                 break;
             }
             else if (card_Cnt[i] == 5)
             {
-                five = true;
-                topCard = i;
+                result.Add((int)Ranks.All);
+                result.Add(i);
                 break;
             }            
         }
 
-        if (five == true)        
-            result = (int)Ranks.All + topCard;
-        else if (four == true)
-            result = (int)Ranks.FourCard + topCard;
-        else if (three == true && pair == 1)
-            result = (int)Ranks.FullHouse + topCard;
+        if (three == true && pair == 1)
+        {
+            result.Add((int)Ranks.FullHouse);
+            result.Add(topCard);
+        }
         else if (three == true)
-            result = (int)Ranks.Triple + topCard;
+        {
+            result.Add((int)Ranks.Triple);
+            result.Add(topCard);
+        }
         else if (pair == 2)
-            result = (int)Ranks.TwoPair + topCard;
+        {
+            // TwoPair, 큰 쌍, 작은 쌍, 한 장
+            result.Add((int)Ranks.TwoPair);
+
+            int oneCard = -1;
+            for (int i = 6; i >= 1; i--)
+            {
+                if (card_Cnt[i] == 2)
+                    result.Add(i);
+                else if (card_Cnt[i] == 1)
+                    oneCard = i;
+            }
+            result.Add(oneCard);
+        }
         else if (pair == 1)
-            result = (int)Ranks.OnePair + topCard;
+        {
+            // OnePair, 쌍, 한 장 카드 내림차순.
+            result.Add((int)Ranks.OnePair);
+            List<int> oneCard = new List<int>();
+            for (int i = 6; i >= 1; i--)
+            {
+                if (card_Cnt[i] == 2)
+                    result.Add(i);
+                else if (card_Cnt[i] == 1)
+                    oneCard.Add(i);
+            }
+            result.AddRange(oneCard);
+        }
         else
-            result = (int)Ranks.Top + topCard;
-        
+        {
+            // Top, 카드 내림차순.
+            result.Add((int)Ranks.Top);
+            for (int i = 6; i >= 1; i--)
+            {                
+                if (card_Cnt[i] == 1)
+                    result.Add(i);
+            }
+        }
+
         return result;
     }
 
     // 승패 판정 함수.
     public void judge_Poker()
     {
-        int player_Score = calc_PokerRank(player_Hand);
-        int dealer_Score = calc_PokerRank(dealer_Hand);
+        List<int> player_Score = calc_PokerRank(player_Hand);
+        List<int> dealer_Score = calc_PokerRank(dealer_Hand);
+                       
+        for(int i = 0; i < player_Score.Count; i++)
+            Debug.Log("플레이어 스코어 " + i + " : "+ player_Score[i]);
+        for (int i = 0; i < dealer_Score.Count; i++)
+            Debug.Log("딜러 스코어 " + i + " : " + dealer_Score[i]);
 
-        Debug.Log("플레이어 스코어 " + player_Score);
-        Debug.Log("딜러 스코어 " + dealer_Score);
-
-        if (player_Score < dealer_Score)
+        if (player_Score[0] < dealer_Score[0])
             Debug.Log("딜러 승");
-        else if (player_Score > dealer_Score)
+        else if (player_Score[0] > dealer_Score[0])
             Debug.Log("플레이어 승");
         else // 무승부의 경우.
-            return;
-
+        {
+            for(int i = 1; i < player_Score.Count; i++)
+            {
+                if (player_Score[i] < dealer_Score[i])
+                {
+                    Debug.Log("딜러 승");
+                    return;
+                }
+                else if (player_Score[i] > dealer_Score[i])
+                {
+                    Debug.Log("플레이어 승");
+                    return;
+                }
+            }
+            Debug.Log("무승부");
+        }            
     }
 
     // 덱 초기화 함수.
@@ -166,10 +212,11 @@ public class Poker_Manager : MonoBehaviour
     {
         GameObject dealer_Field = poker_Canvas.transform.Find("Dealer_Field").gameObject;
         GameObject player_Field = poker_Canvas.transform.Find("Player_Field").gameObject;
+        
         for (int i = 0; i < 5; i++)
         {            
-            dealer_Field.transform.GetChild(i).GetComponent<Image>().sprite = card_Set[dealer_Hand[i]];
-            player_Field.transform.GetChild(i).GetComponent<Image>().sprite = card_Set[player_Hand[i]];
+            dealer_Field.transform.GetChild(i).GetComponent<Image>().sprite = card_Set[dealer_Hand[i] - 1];
+            player_Field.transform.GetChild(i).GetComponent<Image>().sprite = card_Set[player_Hand[i] - 1];
         }
     }
 }
