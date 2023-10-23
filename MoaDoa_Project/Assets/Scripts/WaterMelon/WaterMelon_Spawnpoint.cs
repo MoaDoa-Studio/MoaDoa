@@ -3,25 +3,42 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-// ¼ö¹Ú°ÔÀÓ Spawn À§Ä¡ ¹× »ı¼º
+// ï¿½ï¿½ï¿½Ú°ï¿½ï¿½ï¿½ Spawn ï¿½ï¿½Ä¡ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 public class WaterMelon_Spawnpoint : MonoBehaviour
 {
-    [HideInInspector]
+
     public GameObject[] gameObjects;
 
-    // UI¼¼ÆÃÇÏ±â
-    
-    public GameObject spawnObject; 
-    public GameObject waitingObject;
 
+    public GameObject spawnObject;
+
+    public GameObject waitObject;
+    [HideInInspector]
     public Transform waiting_Point;
 
-    // gamemanager¿¡¼­ °¡Á®¿Ã ¿ÀºêÁ§Æ®
+
+    [SerializeField]
+    private GameObject nowPrefab;
+
+    [SerializeField]
+    private GameObject waitedPrefab;
+
+    private GameObject firstwaitPrefab;
+
+    // Input access successful
+    private bool isActivated;
+    private bool falling = false;
+    [SerializeField]
+    private bool isWatedactivate;
+
+
+
+    // gamemanagerï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
     public Queue<GameObject>[] firstTwoObjects = new Queue<GameObject>[2];
 
-    // °á°ú°ªÀ» ÀúÀåÇÒ List »ı¼º
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ List ï¿½ï¿½ï¿½ï¿½
     List<Queue<GameObject>> resultList = new List<Queue<GameObject>>();
-    
+
     private float probability1 = 0.45f;
     private float probability2 = 0.35f;
     private float probability3 = 0.2f;
@@ -29,25 +46,26 @@ public class WaterMelon_Spawnpoint : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        // ÃÊ¹İ¿¡ 30°³ ¼¼ÆÃ
+        // ï¿½Ê¹İ¿ï¿½ 30ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         Spawning_Objects(30);
         Setting_Process();
+        Setting_Prefab();
     }
 
     // Update is called once per frame
     void Update()
     {
         Checklist_Watermelon(20);
-        
-        if(Input.GetMouseButtonUp(0))
+
+        if (Input.GetMouseButtonDown(0))
         {
             Input_Proccess();
         }
-        
+
     }
     void Spawning_Objects(int numIterations)
     {
-        
+
 
         for (int i = 0; i < numIterations; i++)
         {
@@ -68,37 +86,70 @@ public class WaterMelon_Spawnpoint : MonoBehaviour
                 resultQueue.Enqueue(gameObjects[2]);
             }
 
-            //°á°ú Å¥¸¦ List Ãß°¡
-            resultList.Add(resultQueue); 
+            //ï¿½ï¿½ï¿½ Å¥ï¿½ï¿½ List ï¿½ß°ï¿½
+            resultList.Add(resultQueue);
         }
 
         firstTwoObjects[0] = resultList[0];
         firstTwoObjects[1] = resultList[1];
-        
-        // ÃÊ±âÈ­¼¼ÆÃ¿¡¼­ ¾Õ¿¡¼­ µÎ°³¸¦ Áö¿öÁÜ
+        // isActivated = true;
+
+        //nowPrefab = resultList[1].Dequeue();
+
+        // ï¿½Ê±ï¿½È­ï¿½ï¿½ï¿½Ã¿ï¿½ï¿½ï¿½ ï¿½Õ¿ï¿½ï¿½ï¿½ ï¿½Î°ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         resultList.RemoveRange(0, 2);
 
 
     }
 
-    // firstTwoObjects[3,4] / UI[1.2] ¼¼ÆÃ¿Ï·á
+    // firstTwoObjects[3,4] / UI[1.2] ï¿½ï¿½ï¿½Ã¿Ï·ï¿½
     void Setting_Process()
     {
-        // Ã³À½ UI ¼¼ÆÃ °¡Á®¿À±â
+        // Ã³ï¿½ï¿½ UI ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         spawnObject = firstTwoObjects[0].Dequeue();
-        waitingObject = firstTwoObjects[1].Dequeue();
+        waitObject = firstTwoObjects[1].Dequeue();
 
-        Instantiate(spawnObject, this.transform.position, Quaternion.identity);
+        firstTwoObjects[0] = resultList[0];
+        firstTwoObjects[1] = resultList[1];
 
-        Instantiate(waitingObject, waiting_Point.transform.position, Quaternion.identity);
-           
-        if (firstTwoObjects[0] == null)
+
+        resultList.RemoveRange(0, 2);
+
+    }
+
+    void Setting_Prefab()
+    {
+        GameObject obj1 = Instantiate(spawnObject);
+        Rigidbody2D rb1 = obj1.GetComponent<Rigidbody2D>();
+        obj1.transform.position = this.transform.position;
+        rb1.gravityScale = 0;
+
+        checking_nowobject(obj1);
+
+        GameObject obj2 = Instantiate(waitObject);
+        Rigidbody2D rb2 = obj2.GetComponent<Rigidbody2D>();
+        obj2.transform.position = waiting_Point.position;
+        //firstwaitPrefab = obj2;
+        rb2.gravityScale = 0;
+
+        checking_waitobject(obj2);
+
+        isWatedactivate = true;
+    }
+
+
+
+    // ï¿½ï¿½Æ° ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Î¼ï¿½ï¿½ï¿½
+    void Input_Proccess()
+    {
+
+
+        if (firstTwoObjects[0] == null || firstTwoObjects[1] == null)
         {
             firstTwoObjects[0] = resultList[0];
             firstTwoObjects[1] = resultList[1];
 
             resultList.RemoveRange(0, 2);
-
         }
         else if (firstTwoObjects[1] == null)
         {
@@ -107,32 +158,83 @@ public class WaterMelon_Spawnpoint : MonoBehaviour
             resultList.RemoveRange(0, 1);
 
         }
-            
-    }
-       
-   
 
-   // ¹öÆ° ´­¸±½Ã ÇÁ·Î¼¼½º
-   void Input_Proccess()
+        if (isWatedactivate == true)
+        {
+           
+            isWatedactivate = false;
+        }
+
+        Rigidbody2D rigidnow = nowPrefab.GetComponent<Rigidbody2D>();
+        rigidnow.gravityScale = 1f;
+
+        // ï¿½ï¿½Æ°ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 
+
+        nowPrefab = waitedPrefab;
+        nowPrefab.transform.position = this.transform.position;
+    }
+    void Input_Proccess2()
     {
-        // ¹öÆ°ÀÌ ¶³¾îÁ³À»¶§ 
-        spawnObject = waitingObject;
-        Instantiate(spawnObject, this.transform.position, Quaternion.identity);
 
-        waitingObject = firstTwoObjects[0].Dequeue();
-        Instantiate(waitingObject, waiting_Point.transform.position, Quaternion.identity);
+        waitedPrefab = firstTwoObjects[0].Dequeue();
 
-        // µÎ ¹øÂ° Å¥ÀÇ Ã¹¹ø¤Š ¿ä¼Ò¸¦ Ã¹ ¹ø¤Š Å¥·Î ¿Å±é´Ï´Ù
-        firstTwoObjects[0].Enqueue(firstTwoObjects[1].Dequeue());
+        //ë–¨ì–´ì§€ëŠ” ì¤‘ì—ëŠ” ìƒì„±x 
+      
+        // 2ë²ˆì§¸ í 1ë²ˆì¨°íë¡œ ë°€ìŒ
+        if (firstTwoObjects[1].Count > 0)
+        {
+            firstTwoObjects[0].Enqueue(firstTwoObjects[1].Dequeue());
+            firstTwoObjects[1].Enqueue(resultList[0].Dequeue());
+            resultList.RemoveRange(0, 1);
+        }
+        else if(firstTwoObjects[0].Count <= 0)
+        {
+            firstTwoObjects[0].Enqueue(resultList[0].Dequeue());
+            firstTwoObjects[1].Enqueue(resultList[1].Dequeue());
+            resultList.RemoveRange(0, 2);
+            
+        }
 
-        GameObject objToMove = resultList[0].Dequeue();
+        // ì œ3ì˜ ìš”ì†Œ
+        GameObject waitingObj = Instantiate(waitedPrefab);
+        waitingObj.transform.position = waiting_Point.position;
+        Rigidbody2D rigid = waitObject.GetComponent<Rigidbody2D>();
+        rigid.gravityScale = 0;
+        
+        //í”„ë¦¬íŒ¹ìœ¼ë¡œ ìƒì„±ëœ ì˜¤ë¸Œì íŠ¸ ì²´í¬
+        checking_waitobject(waitingObj);
 
-        firstTwoObjects[1].Enqueue(objToMove);
+
+    } 
 
 
+
+    
+    IEnumerator making_Watermelon(GameObject _something)
+    {
+        falling = true;
+        yield return new WaitForSeconds(2f);
+        Instantiate(_something);
+        _something.transform.position = this.transform.position;
+        
+        falling = false;
+    }
+
+    public GameObject checking_waitobject(GameObject _lastObject)
+    {
+        waitedPrefab = _lastObject;
+        return waitedPrefab;
     }
 
 
+    public GameObject checking_nowobject(GameObject _nowObject)
+    {
+        nowPrefab = _nowObject;
+        return nowPrefab;
+    }
+
+
+    // Updateï¿½ï¿½ï¿½ï¿½ CheckList 20ï¿½ï¿½ ï¿½Ì»ï¿½ï¿½ï¿½ Ã¼Å©
     void Checklist_Watermelon(int numIterations)
     {
         if(resultList.Count < 10)
@@ -156,7 +258,7 @@ public class WaterMelon_Spawnpoint : MonoBehaviour
                     resultQueue.Enqueue(gameObjects[2]);
                 }
 
-                //°á°ú Å¥¸¦ List Ãß°¡
+                //ï¿½ï¿½ï¿½ Å¥ï¿½ï¿½ List ï¿½ß°ï¿½
                 resultList.Add(resultQueue);
             }
         }
@@ -167,11 +269,15 @@ public class WaterMelon_Spawnpoint : MonoBehaviour
 
 }
 
+
+
+
+
 /*
-    // Á¤·ÉÀ» ½ºÆùÇÒ ¸Ş¼­µå
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ş¼ï¿½ï¿½ï¿½
     void Spawning_WatermelonSoul(int numIteration)
     {
-        //°á°ú°ªÀ» ÀúÀåÇÒ ¹è¿­»ı¼º
+        //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½è¿­ï¿½ï¿½ï¿½ï¿½
         GameObject[] results = new GameObject[numIteration];
 
         for (int i = 0; i < numIteration; i++)
@@ -195,7 +301,7 @@ public class WaterMelon_Spawnpoint : MonoBehaviour
             }
 
 
-            //°á°ú°ªÀ» ¹®ÀÚ¿­·Î Ãâ·Â
+            //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ú¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
             string resultsString = "";
             for (int j = 0; j < results.Length; j++)
             {
@@ -211,7 +317,21 @@ public class WaterMelon_Spawnpoint : MonoBehaviour
             Debug.Log("Results: " + resultsString);
         }
 
-        //ÃÖÃÊ ½ÃÀÛ½Ã¿¡ ÇÏ³ªÀÇ ¿ÀºêÁ§Æ®¸¦ ¹èÄ¡ÇØ¾ßÇÔ
-        //i ¶ó¸é Á¤Áß¾Ó°ú i+1ÀÌ¶ó¸é ÁÂÃø UI¿¡ ¹èÄ¡ÇØ¾ßÇÔ
+        //ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Û½Ã¿ï¿½ ï¿½Ï³ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½Ø¾ï¿½ï¿½ï¿½
+        //i ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ß¾Ó°ï¿½ i+1ï¿½Ì¶ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ UIï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½Ø¾ï¿½ï¿½ï¿½
     }
+
+
+
+
+        Void AnotherFunction()
+{
+
+        GameObject instantiatedObject = InstantiatePrefabAndGetReference();
+        if(instatiatedObject != null)
+        {
+            
+        }
+
+
 */
