@@ -31,7 +31,8 @@ public class WaterMelon_Spawnpoint : MonoBehaviour
     [SerializeField]
     private bool isWatedactivate;
 
-
+    [SerializeField]
+    GameObject currentObj;
 
     // gamemanager���� ������ ������Ʈ
     public Queue<GameObject>[] firstTwoObjects = new Queue<GameObject>[2];
@@ -60,6 +61,7 @@ public class WaterMelon_Spawnpoint : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             Input_Proccess();
+            
         }
 
     }
@@ -159,26 +161,26 @@ public class WaterMelon_Spawnpoint : MonoBehaviour
 
         }
 
-        if (isWatedactivate == true)
+
+        if(isActivated == true)
         {
-           
-            isWatedactivate = false;
+            GameObject othertownowPrefab = Instantiate(currentObj);
+            othertownowPrefab.transform.position = this.transform.position;
+            Rigidbody2D rigids= othertownowPrefab.GetComponent<Rigidbody2D>();
+            rigids.gravityScale = 1f;
         }
-
-        Rigidbody2D rigidnow = nowPrefab.GetComponent<Rigidbody2D>();
-        rigidnow.gravityScale = 1f;
-
         // ��ư�� ���������� 
-
-        nowPrefab = waitedPrefab;
-        nowPrefab.transform.position = this.transform.position;
-    }
-    void Input_Proccess2()
-    {
-
+        if(isActivated == false)
+        {
+            nowPrefab = waitedPrefab;
+            nowPrefab.transform.position = this.transform.position;
+            Rigidbody2D rigidnow = nowPrefab.GetComponent<Rigidbody2D>();
+            rigidnow.gravityScale = 1f;
+        }
+   
         waitedPrefab = firstTwoObjects[0].Dequeue();
 
-        //떨어지는 중에는 생성x 
+        // 떨어지는 중에는 생성x 
       
         // 2번째 큐 1번쨰큐로 밀음
         if (firstTwoObjects[1].Count > 0)
@@ -192,19 +194,35 @@ public class WaterMelon_Spawnpoint : MonoBehaviour
             firstTwoObjects[0].Enqueue(resultList[0].Dequeue());
             firstTwoObjects[1].Enqueue(resultList[1].Dequeue());
             resultList.RemoveRange(0, 2);
-            
         }
 
-        // 제3의 요소
+        // 숫자 3의 요소 생성
         GameObject waitingObj = Instantiate(waitedPrefab);
         waitingObj.transform.position = waiting_Point.position;
         Rigidbody2D rigid = waitObject.GetComponent<Rigidbody2D>();
         rigid.gravityScale = 0;
         
-        //프리팹으로 생성된 오브젝트 체크
+        // 프리팹으로 생성된 오브젝트 체크
         checking_waitobject(waitingObj);
 
+        // 대기중인 prefab 삭제 메서드
+        if(currentObj == null)
+        {
+            currentObj = waitingObj;
+            bool ready = true;
+            isActivated = true;
+        }
+        else
+        {
+            // 여기에서 대기중인놈을 삭제하다가 아예 삭제가 되어버림
+            nowPrefab = waitingObj;
+            Destroy(currentObj);
 
+            currentObj = waitingObj;
+
+        }
+    
+    
     } 
 
 
