@@ -16,6 +16,7 @@ public class WaterMelon_Spawnpoint : MonoBehaviour
     [HideInInspector]
     public Transform waiting_Point;
 
+    int modeStack = 1;
 
     [SerializeField]
     private GameObject nowPrefab;
@@ -23,14 +24,11 @@ public class WaterMelon_Spawnpoint : MonoBehaviour
     [SerializeField]
     private GameObject waitedPrefab;
 
-    private GameObject firstwaitPrefab;
+    GameObject somethingnow;
 
     // Input access successful
     private bool isActivated;
-    private bool falling = false;
-    [SerializeField]
-    private bool isWatedactivate;
-
+    
     [SerializeField]
     GameObject currentObj;
 
@@ -50,7 +48,7 @@ public class WaterMelon_Spawnpoint : MonoBehaviour
         // �ʹݿ� 30�� ����
         Spawning_Objects(30);
         Setting_Process();
-        Setting_Prefab();
+        
     }
 
     // Update is called once per frame
@@ -107,39 +105,11 @@ public class WaterMelon_Spawnpoint : MonoBehaviour
     // firstTwoObjects[3,4] / UI[1.2] ���ÿϷ�
     void Setting_Process()
     {
-        // ó�� UI ���� ��������
         spawnObject = firstTwoObjects[0].Dequeue();
-        waitObject = firstTwoObjects[1].Dequeue();
+        waitedPrefab = firstTwoObjects[1].Dequeue();
 
-        firstTwoObjects[0] = resultList[0];
-        firstTwoObjects[1] = resultList[1];
-
-
-        resultList.RemoveRange(0, 2);
-
+        Input_Proccess();
     }
-
-    void Setting_Prefab()
-    {
-        GameObject obj1 = Instantiate(spawnObject);
-        Rigidbody2D rb1 = obj1.GetComponent<Rigidbody2D>();
-        obj1.transform.position = this.transform.position;
-        rb1.gravityScale = 0;
-
-        checking_nowobject(obj1);
-
-        GameObject obj2 = Instantiate(waitObject);
-        Rigidbody2D rb2 = obj2.GetComponent<Rigidbody2D>();
-        obj2.transform.position = waiting_Point.position;
-        //firstwaitPrefab = obj2;
-        rb2.gravityScale = 0;
-
-        checking_waitobject(obj2);
-
-        isWatedactivate = true;
-    }
-
-
 
     // ��ư ������ ���μ���
     void Input_Proccess()
@@ -161,28 +131,38 @@ public class WaterMelon_Spawnpoint : MonoBehaviour
 
         }
 
-
-        if(isActivated == true)
+        if(modeStack == 0)
         {
-            GameObject othertownowPrefab = Instantiate(currentObj);
-            othertownowPrefab.transform.position = this.transform.position;
-            Rigidbody2D rigids= othertownowPrefab.GetComponent<Rigidbody2D>();
-            rigids.gravityScale = 1f;
+            somethingnow.GetComponent<Rigidbody2D>().gravityScale = 1f;
+
+            if(isActivated == true)
+            {
+                GameObject othertownowPrefab = Instantiate(currentObj);
+                othertownowPrefab.transform.position = this.transform.position;
+                Rigidbody2D rigids= othertownowPrefab.GetComponent<Rigidbody2D>();
+                rigids.gravityScale = 1f;
+            }
+           
         }
-        // ��ư�� ���������� 
+        // 최초 진입    
         if(isActivated == false)
         {
-            nowPrefab = waitedPrefab;
-            nowPrefab.transform.position = this.transform.position;
-            Rigidbody2D rigidnow = nowPrefab.GetComponent<Rigidbody2D>();
-            rigidnow.gravityScale = 1f;
+            somethingnow = Instantiate(spawnObject);
+            somethingnow.transform.position = this.transform.position;
+            Rigidbody2D rigidnow = somethingnow.GetComponent<Rigidbody2D>();
+            rigidnow.gravityScale = 0f;
         }
    
-        waitedPrefab = firstTwoObjects[0].Dequeue();
 
-        // 떨어지는 중에는 생성x 
-      
-        // 2번째 큐 1번쨰큐로 밀음
+        if(modeStack != 1) 
+        {
+            waitedPrefab = firstTwoObjects[0].Dequeue();
+        }
+     
+
+
+       
+        
         if (firstTwoObjects[1].Count > 0)
         {
             firstTwoObjects[0].Enqueue(firstTwoObjects[1].Dequeue());
@@ -196,21 +176,18 @@ public class WaterMelon_Spawnpoint : MonoBehaviour
             resultList.RemoveRange(0, 2);
         }
 
-        // 숫자 3의 요소 생성
         GameObject waitingObj = Instantiate(waitedPrefab);
         waitingObj.transform.position = waiting_Point.position;
-        Rigidbody2D rigid = waitObject.GetComponent<Rigidbody2D>();
-        rigid.gravityScale = 0;
+        Rigidbody2D rigid = waitingObj.GetComponent<Rigidbody2D>();
+        rigid.gravityScale = 0f;
         
-        // 프리팹으로 생성된 오브젝트 체크
-        checking_waitobject(waitingObj);
-
+       
         // 대기중인 prefab 삭제 메서드
         if(currentObj == null)
         {
             currentObj = waitingObj;
-            bool ready = true;
             isActivated = true;
+            modeStack -= 1;
         }
         else
         {
@@ -226,33 +203,6 @@ public class WaterMelon_Spawnpoint : MonoBehaviour
     } 
 
 
-
-    
-    IEnumerator making_Watermelon(GameObject _something)
-    {
-        falling = true;
-        yield return new WaitForSeconds(2f);
-        Instantiate(_something);
-        _something.transform.position = this.transform.position;
-        
-        falling = false;
-    }
-
-    public GameObject checking_waitobject(GameObject _lastObject)
-    {
-        waitedPrefab = _lastObject;
-        return waitedPrefab;
-    }
-
-
-    public GameObject checking_nowobject(GameObject _nowObject)
-    {
-        nowPrefab = _nowObject;
-        return nowPrefab;
-    }
-
-
-    // Update���� CheckList 20�� �̻��� üũ
     void Checklist_Watermelon(int numIterations)
     {
         if(resultList.Count < 10)
@@ -281,6 +231,33 @@ public class WaterMelon_Spawnpoint : MonoBehaviour
             }
         }
     }
+
+    
+    IEnumerator making_Watermelon(GameObject _something)
+    {
+        //falling = true;
+        yield return new WaitForSeconds(2f);
+        Instantiate(_something);
+        _something.transform.position = this.transform.position;
+        
+        //falling = false;
+    }
+
+    public GameObject checking_waitobject(GameObject _lastObject)
+    {
+        waitedPrefab = _lastObject;
+        return waitedPrefab;
+    }
+
+
+    public GameObject checking_nowobject(GameObject _nowObject)
+    {
+        nowPrefab = _nowObject;
+        return nowPrefab;
+    }
+
+
+    // Update���� CheckList 20�� �̻��� üũ
 
 
 
