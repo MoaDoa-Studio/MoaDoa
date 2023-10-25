@@ -9,29 +9,28 @@ public class WaterMelon_Spawnpoint : MonoBehaviour
 
     public GameObject[] gameObjects;
 
-
-    public GameObject spawnObject;
-
-    public GameObject waitObject;
     [HideInInspector]
+    public GameObject spawnObject;
+    [HideInInspector]
+    public GameObject waitObject;
+    
     public Transform waiting_Point;
 
-
+    int modeStack = 2;
+    
     [SerializeField]
     private GameObject nowPrefab;
 
     [SerializeField]
     private GameObject waitedPrefab;
 
-    private GameObject firstwaitPrefab;
+    GameObject somethingnow;
 
     // Input access successful
     private bool isActivated;
-    private bool falling = false;
+    
     [SerializeField]
-    private bool isWatedactivate;
-
-
+    GameObject currentObj;
 
     // gamemanager���� ������ ������Ʈ
     public Queue<GameObject>[] firstTwoObjects = new Queue<GameObject>[2];
@@ -39,7 +38,7 @@ public class WaterMelon_Spawnpoint : MonoBehaviour
     // ������� ������ List ����
     List<Queue<GameObject>> resultList = new List<Queue<GameObject>>();
 
-    private float probability1 = 0.45f;
+    private float probability1 = 0.6f;
     private float probability2 = 0.35f;
     private float probability3 = 0.2f;
 
@@ -49,7 +48,7 @@ public class WaterMelon_Spawnpoint : MonoBehaviour
         // �ʹݿ� 30�� ����
         Spawning_Objects(30);
         Setting_Process();
-        Setting_Prefab();
+        
     }
 
     // Update is called once per frame
@@ -57,9 +56,10 @@ public class WaterMelon_Spawnpoint : MonoBehaviour
     {
         Checklist_Watermelon(20);
 
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonUp(0))
         {
             Input_Proccess();
+            
         }
 
     }
@@ -105,44 +105,23 @@ public class WaterMelon_Spawnpoint : MonoBehaviour
     // firstTwoObjects[3,4] / UI[1.2] ���ÿϷ�
     void Setting_Process()
     {
-        // ó�� UI ���� ��������
         spawnObject = firstTwoObjects[0].Dequeue();
-        waitObject = firstTwoObjects[1].Dequeue();
+        waitedPrefab = firstTwoObjects[1].Dequeue();
 
-        firstTwoObjects[0] = resultList[0];
-        firstTwoObjects[1] = resultList[1];
+        GameObject settingObj = Instantiate(spawnObject);
+        spawnObject.transform.position = this.transform.position;
+        Rigidbody2D rigid2D = spawnObject.GetComponent<Rigidbody2D>();
+        rigid2D.gravityScale = 0f;
+        nowPrefab = settingObj;
 
-
-        resultList.RemoveRange(0, 2);
-
+        Input_Proccess();
     }
-
-    void Setting_Prefab()
-    {
-        GameObject obj1 = Instantiate(spawnObject);
-        Rigidbody2D rb1 = obj1.GetComponent<Rigidbody2D>();
-        obj1.transform.position = this.transform.position;
-        rb1.gravityScale = 0;
-
-        checking_nowobject(obj1);
-
-        GameObject obj2 = Instantiate(waitObject);
-        Rigidbody2D rb2 = obj2.GetComponent<Rigidbody2D>();
-        obj2.transform.position = waiting_Point.position;
-        //firstwaitPrefab = obj2;
-        rb2.gravityScale = 0;
-
-        checking_waitobject(obj2);
-
-        isWatedactivate = true;
-    }
-
-
 
     // ��ư ������ ���μ���
     void Input_Proccess()
     {
-
+        if(modeStack == 1)
+            nowPrefab.GetComponent<Rigidbody2D>().gravityScale = 1f;
 
         if (firstTwoObjects[0] == null || firstTwoObjects[1] == null)
         {
@@ -159,28 +138,21 @@ public class WaterMelon_Spawnpoint : MonoBehaviour
 
         }
 
-        if (isWatedactivate == true)
-        {
-           
-            isWatedactivate = false;
-        }
-
-        Rigidbody2D rigidnow = nowPrefab.GetComponent<Rigidbody2D>();
-        rigidnow.gravityScale = 1f;
-
-        // ��ư�� ���������� 
-
-        nowPrefab = waitedPrefab;
-        nowPrefab.transform.position = this.transform.position;
-    }
-    void Input_Proccess2()
-    {
-
-        waitedPrefab = firstTwoObjects[0].Dequeue();
-
-        //떨어지는 중에는 생성x 
-      
-        // 2번째 큐 1번쨰큐로 밀음
+        
+            // 그 다음껄 눌렀을떄 떨어뜨려야함
+            if(isActivated == true)
+            {
+                GameObject othertownowPrefab = Instantiate(currentObj);
+                othertownowPrefab.transform.position = this.transform.position;
+                Rigidbody2D rigids= othertownowPrefab.GetComponent<Rigidbody2D>();
+                //nowPrefab = othertownowPrefab;
+                rigids.gravityScale = 1f;
+                
+                //inputStack += 1;
+            }
+         
+        
+        
         if (firstTwoObjects[1].Count > 0)
         {
             firstTwoObjects[0].Enqueue(firstTwoObjects[1].Dequeue());
@@ -192,49 +164,42 @@ public class WaterMelon_Spawnpoint : MonoBehaviour
             firstTwoObjects[0].Enqueue(resultList[0].Dequeue());
             firstTwoObjects[1].Enqueue(resultList[1].Dequeue());
             resultList.RemoveRange(0, 2);
-            
         }
 
-        // 제3의 요소
+        if(modeStack == 1)
+        {
+            GameObject involve = waitedPrefab;
+        }
+        else
+            waitedPrefab = firstTwoObjects[0].Dequeue();
+
         GameObject waitingObj = Instantiate(waitedPrefab);
         waitingObj.transform.position = waiting_Point.position;
-        Rigidbody2D rigid = waitObject.GetComponent<Rigidbody2D>();
-        rigid.gravityScale = 0;
+        Rigidbody2D rigid = waitingObj.GetComponent<Rigidbody2D>();
+        rigid.gravityScale = 0f;
         
-        //프리팹으로 생성된 오브젝트 체크
-        checking_waitobject(waitingObj);
+       
+        // 대기중인 prefab 삭제 메서드
+        if(currentObj == null)
+        {
+            currentObj = waitingObj;
+            modeStack -= 1;
+        }
+        else
+        {
+            // 여기에서 대기중인놈을 삭제하다가 아예 삭제가 되어버림
+            isActivated = true;
+            
+            Destroy(currentObj);
 
-
+            currentObj = waitingObj;
+            modeStack -= 1;
+        }
+    
+    
     } 
 
 
-
-    
-    IEnumerator making_Watermelon(GameObject _something)
-    {
-        falling = true;
-        yield return new WaitForSeconds(2f);
-        Instantiate(_something);
-        _something.transform.position = this.transform.position;
-        
-        falling = false;
-    }
-
-    public GameObject checking_waitobject(GameObject _lastObject)
-    {
-        waitedPrefab = _lastObject;
-        return waitedPrefab;
-    }
-
-
-    public GameObject checking_nowobject(GameObject _nowObject)
-    {
-        nowPrefab = _nowObject;
-        return nowPrefab;
-    }
-
-
-    // Update���� CheckList 20�� �̻��� üũ
     void Checklist_Watermelon(int numIterations)
     {
         if(resultList.Count < 10)
@@ -263,6 +228,33 @@ public class WaterMelon_Spawnpoint : MonoBehaviour
             }
         }
     }
+
+    
+    IEnumerator making_Watermelon(GameObject _something)
+    {
+        //falling = true;
+        yield return new WaitForSeconds(2f);
+        Instantiate(_something);
+        _something.transform.position = this.transform.position;
+        
+        //falling = false;
+    }
+
+    public GameObject checking_waitobject(GameObject _lastObject)
+    {
+        waitedPrefab = _lastObject;
+        return waitedPrefab;
+    }
+
+
+    public GameObject checking_nowobject(GameObject _nowObject)
+    {
+        nowPrefab = _nowObject;
+        return nowPrefab;
+    }
+
+
+    // Update���� CheckList 20�� �̻��� üũ
 
 
 
