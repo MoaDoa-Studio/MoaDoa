@@ -26,8 +26,8 @@ public class Poker_Manager : MonoBehaviour
     public GameObject dealer_Field;
     public GameObject player_Field;
     public Sprite[] dealer_Sprite;
-    public Image dealer_Image;    
-
+    public Image dealer_Image;
+    private bool turn_Change = false;
     // 족보의 정보를 Enum으로 저장.
     public enum Ranks
     {
@@ -59,7 +59,8 @@ public class Poker_Manager : MonoBehaviour
             player_Field.transform.GetChild(i).GetComponent<Image>().sprite = null;
             dealer_Field.transform.GetChild(i).GetComponent<Image>().sprite = null;
         }
-        turn = 0;                
+        turn = 0;
+        turn_Change = false;
     }    
     // 중복 없이 카드 할당 함수.
     // 카드는 A ~ F = 1 ~ 6의 범위를 갖는다.
@@ -250,23 +251,46 @@ public class Poker_Manager : MonoBehaviour
             return;        
         else
         {
-            switch (turn)
+            if (turn_Change == false)
             {
-                case 0:
-                    dealer_Field.transform.GetChild(0).GetComponent<Image>().sprite = secret_Card;
-                    dealer_Field.transform.GetChild(1).GetComponent<Image>().sprite = secret_Card;
-                    break;
-                case 1:
-                    player_Field.transform.GetChild(0).GetComponent<Image>().sprite = card_Sprite[player_Hand[0] - 1];
-                    player_Field.transform.GetChild(1).GetComponent<Image>().sprite = card_Sprite[player_Hand[1] - 1];
-                    break;
-                default:
-                    if (turn % 2 == 0)
-                        dealer_Field.transform.GetChild(turn / 2 + 1).GetComponent<Image>().sprite = card_Sprite[dealer_Hand[turn / 2 + 1] - 1];
-                    else 
-                        player_Field.transform.GetChild(turn / 2 + 1).GetComponent<Image>().sprite = card_Sprite[player_Hand[turn / 2 + 1] - 1];
-                    break;
-            }            
+                switch (turn)
+                {
+                    case 0:
+                        dealer_Field.transform.GetChild(0).GetComponent<Image>().sprite = secret_Card;
+                        dealer_Field.transform.GetChild(1).GetComponent<Image>().sprite = secret_Card;
+                        break;
+                    case 1:
+                        player_Field.transform.GetChild(0).GetComponent<Image>().sprite = card_Sprite[player_Hand[0] - 1];
+                        player_Field.transform.GetChild(1).GetComponent<Image>().sprite = card_Sprite[player_Hand[1] - 1];
+                        break;
+                    default:
+                        if (turn % 2 == 0)
+                            dealer_Field.transform.GetChild(turn / 2 + 1).GetComponent<Image>().sprite = card_Sprite[dealer_Hand[turn / 2 + 1] - 1];
+                        else
+                            player_Field.transform.GetChild(turn / 2 + 1).GetComponent<Image>().sprite = card_Sprite[player_Hand[turn / 2 + 1] - 1];
+                        break;
+                }
+            }
+            else
+            {
+                switch (turn)
+                {
+                    case 0:                        
+                        player_Field.transform.GetChild(0).GetComponent<Image>().sprite = card_Sprite[player_Hand[0] - 1];
+                        player_Field.transform.GetChild(1).GetComponent<Image>().sprite = card_Sprite[player_Hand[1] - 1];
+                        break;
+                    case 1:
+                        dealer_Field.transform.GetChild(0).GetComponent<Image>().sprite = secret_Card;
+                        dealer_Field.transform.GetChild(1).GetComponent<Image>().sprite = secret_Card;
+                        break;
+                    default:
+                        if (turn % 2 == 0)
+                            player_Field.transform.GetChild(turn / 2 + 1).GetComponent<Image>().sprite = card_Sprite[player_Hand[turn / 2 + 1] - 1];
+                        else                            
+                            dealer_Field.transform.GetChild(turn / 2 + 1).GetComponent<Image>().sprite = card_Sprite[dealer_Hand[turn / 2 + 1] - 1];
+                        break;
+                }
+            }
         }
     }
     // 다음 턴으로 넘겨주는 함수.
@@ -341,6 +365,7 @@ public class Poker_Manager : MonoBehaviour
                 canClick_Secret_Card(true);
                 break;
             case 3:
+                turn_Change = true;
                 break;
         }        
     }    
