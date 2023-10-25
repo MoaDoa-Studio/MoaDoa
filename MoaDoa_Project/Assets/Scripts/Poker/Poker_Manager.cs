@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 public class Poker_Manager : MonoBehaviour
 {
     public static Poker_Manager instance = null;
@@ -28,6 +29,7 @@ public class Poker_Manager : MonoBehaviour
     public Sprite[] dealer_Sprite;
     public Image dealer_Image;
     private bool turn_Change = false;
+    public TextMeshProUGUI result_TMP;
     // 족보의 정보를 Enum으로 저장.
     public enum Ranks
     {
@@ -49,6 +51,9 @@ public class Poker_Manager : MonoBehaviour
         canClick_Card(true, false);
         canClick_Card(false, false);
         canClick_Secret_Card(false);
+
+        // 임시
+        result_TMP.text = "";
     }
     
     // 필드 및 턴 초기화.
@@ -215,32 +220,27 @@ public class Poker_Manager : MonoBehaviour
 
         List<int> player_Score = calc_PokerRank(player_Hand);
         List<int> dealer_Score = calc_PokerRank(dealer_Hand);
-                       
-        for(int i = 0; i < player_Score.Count; i++)
-            Debug.Log("플레이어 스코어 " + i + " : "+ player_Score[i]);
-        for (int i = 0; i < dealer_Score.Count; i++)
-            Debug.Log("딜러 스코어 " + i + " : " + dealer_Score[i]);
 
         if (player_Score[0] < dealer_Score[0])
-            Debug.Log("딜러 승");
+            result_TMP.text = "Dealer Win";
         else if (player_Score[0] > dealer_Score[0])
-            Debug.Log("플레이어 승");
+            result_TMP.text = "Player Win";
         else // 무승부의 경우.
         {
-            for(int i = 1; i < player_Score.Count; i++)
+            for (int i = 1; i < player_Score.Count; i++)
             {
                 if (player_Score[i] < dealer_Score[i])
                 {
-                    Debug.Log("딜러 승");
+                    result_TMP.text = "Dealer Win";
                     return;
                 }
                 else if (player_Score[i] > dealer_Score[i])
                 {
-                    Debug.Log("플레이어 승");
+                    result_TMP.text = "Player Win";
                     return;
                 }
             }
-            Debug.Log("무승부");
+            result_TMP.text = "Draw";
         }            
     }
 
