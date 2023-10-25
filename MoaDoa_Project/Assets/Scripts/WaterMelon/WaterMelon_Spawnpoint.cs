@@ -22,7 +22,7 @@ public class WaterMelon_Spawnpoint : MonoBehaviour
 
     private GameObject nowPrefab;
 
-    [SerializeField]
+    
     private GameObject waitedPrefab;
 
     GameObject somethingnow;
