@@ -132,7 +132,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 96375794}
-  - component: {fileID: 96375795}
+  - component: {fileID: 96375796}
   m_Layer: 0
   m_Name: Spawn_Point
   m_TagString: Untagged
@@ -156,7 +156,7 @@ Transform:
   - {fileID: 1696300530}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &96375795
+--- !u!114 &96375796
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -173,11 +173,11 @@ MonoBehaviour:
   - {fileID: 6346619620541426212, guid: 87966c42d581bc941814522648913bcc, type: 3}
   - {fileID: 3615344183519579126, guid: 5621be1def10f244fb12838e0c894991, type: 3}
   spawnObject: {fileID: 0}
-  waitingObject: {fileID: 1743850448}
+  waitObject: {fileID: 0}
   waiting_Point: {fileID: 1743850449}
   nowPrefab: {fileID: 0}
   waitedPrefab: {fileID: 0}
-  isWatedactivate: 0
+  currentObj: {fileID: 0}
 --- !u!1 &104328354
 GameObject:
   m_ObjectHideFlags: 0

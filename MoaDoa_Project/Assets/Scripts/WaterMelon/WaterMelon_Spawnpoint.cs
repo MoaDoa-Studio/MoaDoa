@@ -9,15 +9,15 @@ public class WaterMelon_Spawnpoint : MonoBehaviour
 
     public GameObject[] gameObjects;
 
-
-    public GameObject spawnObject;
-
-    public GameObject waitObject;
     [HideInInspector]
+    public GameObject spawnObject;
+    [HideInInspector]
+    public GameObject waitObject;
+    
     public Transform waiting_Point;
 
-    int modeStack = 1;
-
+    int modeStack = 2;
+    
     [SerializeField]
     private GameObject nowPrefab;
 
@@ -38,7 +38,7 @@ public class WaterMelon_Spawnpoint : MonoBehaviour
     // ������� ������ List ����
     List<Queue<GameObject>> resultList = new List<Queue<GameObject>>();
 
-    private float probability1 = 0.45f;
+    private float probability1 = 0.6f;
     private float probability2 = 0.35f;
     private float probability3 = 0.2f;
 
@@ -56,7 +56,7 @@ public class WaterMelon_Spawnpoint : MonoBehaviour
     {
         Checklist_Watermelon(20);
 
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonUp(0))
         {
             Input_Proccess();
             
@@ -108,13 +108,20 @@ public class WaterMelon_Spawnpoint : MonoBehaviour
         spawnObject = firstTwoObjects[0].Dequeue();
         waitedPrefab = firstTwoObjects[1].Dequeue();
 
+        GameObject settingObj = Instantiate(spawnObject);
+        spawnObject.transform.position = this.transform.position;
+        Rigidbody2D rigid2D = spawnObject.GetComponent<Rigidbody2D>();
+        rigid2D.gravityScale = 0f;
+        nowPrefab = settingObj;
+
         Input_Proccess();
     }
 
     // ��ư ������ ���μ���
     void Input_Proccess()
     {
-
+        if(modeStack == 1)
+            nowPrefab.GetComponent<Rigidbody2D>().gravityScale = 1f;
 
         if (firstTwoObjects[0] == null || firstTwoObjects[1] == null)
         {
@@ -131,37 +138,20 @@ public class WaterMelon_Spawnpoint : MonoBehaviour
 
         }
 
-        if(modeStack == 0)
-        {
-            somethingnow.GetComponent<Rigidbody2D>().gravityScale = 1f;
-
+        
+            // 그 다음껄 눌렀을떄 떨어뜨려야함
             if(isActivated == true)
             {
                 GameObject othertownowPrefab = Instantiate(currentObj);
                 othertownowPrefab.transform.position = this.transform.position;
                 Rigidbody2D rigids= othertownowPrefab.GetComponent<Rigidbody2D>();
+                //nowPrefab = othertownowPrefab;
                 rigids.gravityScale = 1f;
+                
+                //inputStack += 1;
             }
-           
-        }
-        // 최초 진입    
-        if(isActivated == false)
-        {
-            somethingnow = Instantiate(spawnObject);
-            somethingnow.transform.position = this.transform.position;
-            Rigidbody2D rigidnow = somethingnow.GetComponent<Rigidbody2D>();
-            rigidnow.gravityScale = 0f;
-        }
-   
-
-        if(modeStack != 1) 
-        {
-            waitedPrefab = firstTwoObjects[0].Dequeue();
-        }
-     
-
-
-       
+         
+        
         
         if (firstTwoObjects[1].Count > 0)
         {
@@ -176,6 +166,13 @@ public class WaterMelon_Spawnpoint : MonoBehaviour
             resultList.RemoveRange(0, 2);
         }
 
+        if(modeStack == 1)
+        {
+            GameObject involve = waitedPrefab;
+        }
+        else
+            waitedPrefab = firstTwoObjects[0].Dequeue();
+
         GameObject waitingObj = Instantiate(waitedPrefab);
         waitingObj.transform.position = waiting_Point.position;
         Rigidbody2D rigid = waitingObj.GetComponent<Rigidbody2D>();
@@ -186,17 +183,17 @@ public class WaterMelon_Spawnpoint : MonoBehaviour
         if(currentObj == null)
         {
             currentObj = waitingObj;
-            isActivated = true;
             modeStack -= 1;
         }
         else
         {
             // 여기에서 대기중인놈을 삭제하다가 아예 삭제가 되어버림
-            nowPrefab = waitingObj;
+            isActivated = true;
+            
             Destroy(currentObj);
 
             currentObj = waitingObj;
-
+            modeStack -= 1;
         }
     
     
