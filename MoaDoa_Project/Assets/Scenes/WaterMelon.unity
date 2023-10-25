@@ -175,8 +175,7 @@ MonoBehaviour:
   spawnObject: {fileID: 0}
   waitObject: {fileID: 0}
   waiting_Point: {fileID: 1743850449}
-  nowPrefab: {fileID: 0}
-  waitedPrefab: {fileID: 0}
+  usingObj: {fileID: 0}
   currentObj: {fileID: 0}
 --- !u!1 &104328354
 GameObject:
@@ -763,6 +762,50 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!1 &964609960
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 964609961}
+  - component: {fileID: 964609962}
+  m_Layer: 0
+  m_Name: WaterMelon_GameManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &964609961
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 964609960}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.46852, y: -0.5730108, z: -0.03577313}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &964609962
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 964609960}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b76352e7afc946647809dc109483c154, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1696300529
 GameObject:
   m_ObjectHideFlags: 0
@@ -1149,3 +1192,4 @@ SceneRoots:
   - {fileID: 1743850449}
   - {fileID: 882048203}
   - {fileID: 321046853}
+  - {fileID: 964609961}
