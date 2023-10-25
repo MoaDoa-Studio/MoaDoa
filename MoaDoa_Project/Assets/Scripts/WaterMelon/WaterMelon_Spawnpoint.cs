@@ -13,12 +13,13 @@ public class WaterMelon_Spawnpoint : MonoBehaviour
     public GameObject spawnObject;
     [HideInInspector]
     public GameObject waitObject;
-    
+    [HideInInspector]
     public Transform waiting_Point;
 
     int modeStack = 2;
-    
-    [SerializeField]
+
+    public GameObject usingObj;
+
     private GameObject nowPrefab;
 
     [SerializeField]
@@ -55,10 +56,19 @@ public class WaterMelon_Spawnpoint : MonoBehaviour
     void Update()
     {
         Checklist_Watermelon(20);
-
-        if (Input.GetMouseButtonUp(0))
+        if(Input.GetMouseButtonDown(0))
         {
             Input_Proccess();
+        }
+        if (Input.GetMouseButton(0))
+        {
+            Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            mousePos.y = this.transform.position.y;
+            usingObj.transform.position = mousePos;
+        }
+        if (Input.GetMouseButtonUp(0))
+        {
+            //Input_Proccess();
             
         }
 
@@ -113,9 +123,11 @@ public class WaterMelon_Spawnpoint : MonoBehaviour
         Rigidbody2D rigid2D = spawnObject.GetComponent<Rigidbody2D>();
         rigid2D.gravityScale = 0f;
         nowPrefab = settingObj;
-
+        checking_usingobject(settingObj);
         Input_Proccess();
     }
+   
+    
 
     // ��ư ������ ���μ���
     void Input_Proccess()
@@ -139,7 +151,7 @@ public class WaterMelon_Spawnpoint : MonoBehaviour
         }
 
         
-            // 그 다음껄 눌렀을떄 떨어뜨려야함
+            // 그 다음껄 눌렀을때 떨어뜨려야함
             if(isActivated == true)
             {
                 GameObject othertownowPrefab = Instantiate(currentObj);
@@ -147,7 +159,7 @@ public class WaterMelon_Spawnpoint : MonoBehaviour
                 Rigidbody2D rigids= othertownowPrefab.GetComponent<Rigidbody2D>();
                 //nowPrefab = othertownowPrefab;
                 rigids.gravityScale = 1f;
-                
+                checking_usingobject(othertownowPrefab);
                 //inputStack += 1;
             }
          
@@ -247,10 +259,10 @@ public class WaterMelon_Spawnpoint : MonoBehaviour
     }
 
 
-    public GameObject checking_nowobject(GameObject _nowObject)
+    public GameObject checking_usingobject(GameObject _nowObject)
     {
-        nowPrefab = _nowObject;
-        return nowPrefab;
+       usingObj = _nowObject;
+        return usingObj;
     }
 
 
