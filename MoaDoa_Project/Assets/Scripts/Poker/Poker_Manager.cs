@@ -19,7 +19,6 @@ public class Poker_Manager : MonoBehaviour
         else
             Destroy(this);
     }
-
     // (임시)
     public Sprite[] card_Sprite;
     public Sprite secret_Card;
@@ -30,6 +29,7 @@ public class Poker_Manager : MonoBehaviour
     public Image dealer_Image;
     private bool turn_Change = false;
     public TextMeshProUGUI result_TMP;
+    
     // 족보의 정보를 Enum으로 저장.
     public enum Ranks
     {
