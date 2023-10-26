@@ -7,6 +7,8 @@ using UnityEngine.UI;
 public class WaterMelon_Spawnpoint : MonoBehaviour
 {
 
+    private Touch tempTouch;
+
     public GameObject[] gameObjects;
 
     [HideInInspector]
@@ -56,11 +58,11 @@ public class WaterMelon_Spawnpoint : MonoBehaviour
     void Update()
     {
         Checklist_Watermelon(20);
-        if(Input.GetMouseButtonDown(0))
+        if(Input.GetTouch(0).phase == TouchPhase.Began)
         {
             Input_Proccess();
         }
-        if (Input.GetMouseButton(0))
+        if (Input.GetTouch(0).phase == TouchPhase.Moved)
         {
             Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             mousePos.y = this.transform.position.y;
@@ -156,6 +158,7 @@ public class WaterMelon_Spawnpoint : MonoBehaviour
             {
                 GameObject othertownowPrefab = Instantiate(currentObj);
                 othertownowPrefab.transform.position = this.transform.position;
+                othertownowPrefab.GetComponent<CircleCollider2D>().enabled = true;
                 Rigidbody2D rigids= othertownowPrefab.GetComponent<Rigidbody2D>();
                 //nowPrefab = othertownowPrefab;
                 rigids.gravityScale = 1f;
@@ -187,6 +190,7 @@ public class WaterMelon_Spawnpoint : MonoBehaviour
 
         GameObject waitingObj = Instantiate(waitedPrefab);
         waitingObj.transform.position = waiting_Point.position;
+        waitingObj.GetComponent<CircleCollider2D>().enabled = false;
         Rigidbody2D rigid = waitingObj.GetComponent<Rigidbody2D>();
         rigid.gravityScale = 0f;
         
