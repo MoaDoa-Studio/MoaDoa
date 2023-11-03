@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,6 +8,7 @@ public class Dongle : MonoBehaviour
     public int level;
     public bool isDrag;
     public bool isMerge;
+    public AudioClip clip;
 
     Rigidbody2D rigid;
     CircleCollider2D circle;
@@ -95,13 +97,13 @@ public class Dongle : MonoBehaviour
     IEnumerator LevelUpRoutine()
     {
        // yield return new WaitForSeconds(0.2f);
-
+       
         // 애니메이션 실행
         level++;
         GameObject newObject = (GameObject)Instantiate(Resources.Load("Prefabs/WaterMelon/Soul_object" + level), transform.position, Quaternion.identity);
         newObject.GetComponent<Rigidbody2D>().gravityScale = 1f;
         yield return new WaitForSeconds(0.1f);
-
+        AudioManager.instance.SFXPlay("Combine", clip);
         isMerge = false;
         Destroy(this.gameObject);
     }

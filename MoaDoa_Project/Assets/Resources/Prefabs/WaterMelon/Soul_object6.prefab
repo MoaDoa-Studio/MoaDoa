@@ -164,3 +164,4 @@ MonoBehaviour:
   level: 6
   isDrag: 0
   isMerge: 0
+  clip: {fileID: 8300000, guid: 2800e9e5035b2c249886a7dc0aa5cc1b, type: 3}
