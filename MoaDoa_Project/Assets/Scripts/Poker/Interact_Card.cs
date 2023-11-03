@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 public class Interact_Card : MonoBehaviour, IPointerClickHandler
 {
+    // 강정민
     public int card_Num; // 몇 번째 카드인지.
     public bool isPlayer; // 플레이어인지, False면 딜러.
     public bool canClick = false; // 클릭 가능한 지.

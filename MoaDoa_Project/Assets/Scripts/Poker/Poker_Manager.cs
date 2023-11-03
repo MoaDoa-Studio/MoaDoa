@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using TMPro;
 public class Poker_Manager : MonoBehaviour
 {
+    // °­Á¤¹Î
     public static Poker_Manager instance = null;
     public GameObject poker_Canvas;
 
