@@ -6,7 +6,7 @@ using UnityEngine.UI;
 // ���ڰ��� Spawn ��ġ �� ����
 public class WaterMelon_Spawn : MonoBehaviour
 {
-
+    public AudioClip clip;
     [SerializeField]
     GameObject waiting;
 
@@ -39,7 +39,7 @@ public class WaterMelon_Spawn : MonoBehaviour
         {
             Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             mousePos.y = spawnObj.transform.position.y;
-
+            AudioManager.instance.DropPlay("Drop", clip);
             spawnObj.transform.position = mousePos;
         }
         

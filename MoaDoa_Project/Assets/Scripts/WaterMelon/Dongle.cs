@@ -103,7 +103,7 @@ public class Dongle : MonoBehaviour
         GameObject newObject = (GameObject)Instantiate(Resources.Load("Prefabs/WaterMelon/Soul_object" + level), transform.position, Quaternion.identity);
         newObject.GetComponent<Rigidbody2D>().gravityScale = 1f;
         yield return new WaitForSeconds(0.1f);
-        AudioManager.instance.SFXPlay("Combine", clip);
+        AudioManager.instance.Combine("Combine", clip);
         isMerge = false;
         Destroy(this.gameObject);
     }
