@@ -58,23 +58,19 @@ public class WaterMelon_Spawnpoint : MonoBehaviour
     void Update()
     {
         Checklist_Watermelon(20);
-        if(Input.GetTouch(0).phase == TouchPhase.Began)
+        if (Input.GetMouseButtonDown(0))
         {
             Input_Proccess();
         }
-        if (Input.GetTouch(0).phase == TouchPhase.Moved)
+        if (Input.GetMouseButton(0))
         {
             Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             mousePos.y = this.transform.position.y;
             usingObj.transform.position = mousePos;
         }
-        if (Input.GetMouseButtonUp(0))
-        {
-            //Input_Proccess();
-            
-        }
-
     }
+
+
     void Spawning_Objects(int numIterations)
     {
 
