@@ -6,7 +6,7 @@ using UnityEngine.UI;
 // ���ڰ��� Spawn ��ġ �� ����
 public class WaterMelon_Spawnpoint : MonoBehaviour
 {
-
+    public AudioClip clip;
     private Touch tempTouch;
 
     public GameObject[] gameObjects;
@@ -61,6 +61,7 @@ public class WaterMelon_Spawnpoint : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             Input_Proccess();
+            AudioManager.instance.DropPlay("Drop", clip);
         }
         if (Input.GetMouseButton(0))
         {
